@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="anchorPane" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ViewModel">
+   <children>
+      <ImageView fx:id="imageView" fitHeight="600.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <ToolBar layoutY="560.0" prefHeight="30.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0">
+        <items>
+          <Button fx:id="addColorButton" mnemonicParsing="false" onAction="#handleAddColorButton" text="Add Color" />
+            <Button fx:id="addEmitterButton" mnemonicParsing="false" onAction="#handleAddEmitterButton" text="Add Emitter" />
+            <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearButton" text="Clear" />
+            <Button fx:id="numStepsButton" mnemonicParsing="false" onAction="#handleNumStepsButton" text="# Steps" />
+            <Button fx:id="runButton" mnemonicParsing="false" onAction="#handleRunButton" text="Run" />
+            <Button fx:id="exitButton" mnemonicParsing="false" onAction="#handleExitButton" text="Exit" />
+            <TextField fx:id="stepsTextField" editable="false" prefWidth="180.0" />
+            <Button fx:id="hideButton" mnemonicParsing="false" onAction="#handleHideButton" text="Hide" />
+        </items>
+      </ToolBar>
+      <ColorPicker fx:id="colorPicker" layoutX="8.0" layoutY="529.0" />
+      <Slider fx:id="slider" blockIncrement="1.0" layoutX="159.0" layoutY="420.0" max="50.0" min="1.0" orientation="VERTICAL" value="5.0" />
+   </children>
+</AnchorPane>
