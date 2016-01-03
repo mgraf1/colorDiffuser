@@ -3,7 +3,6 @@ package controllers;
 import java.net.URL;
 import java.util.ResourceBundle;
 import controllers.mouse.MouseBehavior;
-import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,6 +13,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import model.DataArray;
 
@@ -58,10 +59,8 @@ public class ViewModel implements Initializable {
     private DataArray dataArray;
     private MouseBehavior mouseBehavior;
     private ProgramState programState;
-    private int numSteps;
-    private int currStep;
+    private ControlledAnimationTimer counter;
     private boolean running;
-    private AnimationTimer timer;
     
     // This is called when the Controller is finished being created.
     public void initialize(URL location, ResourceBundle resources) {
@@ -98,20 +97,16 @@ public class ViewModel implements Initializable {
         imageView.addEventHandler(MouseEvent.MOUSE_MOVED, mouseBehavior.getMoveHandler());
         
         // Setup animation.
+        counter = new ControlledAnimationTimer(INITIAL_NUM_STEPS);
+        counter.setFunction(() -> imageHandler.step());
         running  = false;
-        numSteps = INITIAL_NUM_STEPS;
-        currStep = 0;
-        timer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                if (currStep < numSteps) {
-                    imageHandler.step();
-                    currStep++;
-                } else {
-                    this.stop();
-                }
-            }
-        };
+        
+        // Update GUI when animation starts/stops.
+        counter.addOnStartTask(() -> runButton.setText("Stop"));
+        counter.addOnFinishTask(() -> runButton.setText("Run"));
+        
+        // Bind steps text field to counter.
+        stepsTextField.textProperty().bindBidirectional(counter.getProperty());
     }
     
     // Kills the program.
@@ -123,13 +118,10 @@ public class ViewModel implements Initializable {
     // Starts or stops the diffusion animation.
     @FXML
     public void handleRunButton(ActionEvent event) {
-        if (running) {
-            timer.stop();
-            running = false;
+        if (counter.isRunning()) {
+            counter.stop();
         } else {
-            currStep = 0;
-            running = true;
-            timer.start();
+            counter.start();
         }
     }
     
