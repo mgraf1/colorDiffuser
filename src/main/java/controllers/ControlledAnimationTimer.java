@@ -91,6 +91,14 @@ public class ControlledAnimationTimer extends AnimationTimer{
         return running;
     }
     
+    /**
+     * Getter for maximum steps.
+     * @return Maximum number of steps.
+     */
+    public int getMaxSteps() {
+        return maxSteps;
+    }
+    
     @Override
     public void handle(long now) {
         if (function != null) {

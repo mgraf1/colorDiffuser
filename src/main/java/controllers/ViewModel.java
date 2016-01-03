@@ -1,20 +1,22 @@
 package controllers;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import controllers.mouse.MouseBehavior;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import model.DataArray;
 
@@ -60,7 +62,6 @@ public class ViewModel implements Initializable {
     private MouseBehavior mouseBehavior;
     private ProgramState programState;
     private ControlledAnimationTimer counter;
-    private boolean running;
     
     // This is called when the Controller is finished being created.
     public void initialize(URL location, ResourceBundle resources) {
@@ -99,7 +100,6 @@ public class ViewModel implements Initializable {
         // Setup animation.
         counter = new ControlledAnimationTimer(INITIAL_NUM_STEPS);
         counter.setFunction(() -> imageHandler.step());
-        running  = false;
         
         // Update GUI when animation starts/stops.
         counter.addOnStartTask(() -> runButton.setText("Stop"));
@@ -147,6 +147,31 @@ public class ViewModel implements Initializable {
     @FXML
     public void handleNumStepsButton(ActionEvent event) {
         
+        // Prompt the user.
+        TextInputDialog tid = new TextInputDialog(
+                Integer.toString(counter.getMaxSteps()));
+        tid.setHeaderText(null);
+        tid.setContentText("Enter number of steps.");
+        Optional<String> result = tid.showAndWait();
+        
+        // Handle the input.
+        result.ifPresent(numSteps -> {
+            try {
+                int steps = Integer.parseInt(numSteps);
+                if (steps > 0) {
+                    counter.setMaxSteps(steps);
+                } else {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException nfe) {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Incorrect Input");
+                alert.setHeaderText(null);
+                alert.setContentText("Input must be a positive integer.");
+
+                alert.showAndWait();
+            }
+        });
     }
     
     // Hides the tool bar.
