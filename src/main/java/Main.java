@@ -19,5 +19,4 @@ public class Main extends Application {
 		primaryStage.setTitle("Color Diffuser!");
 		primaryStage.show();
 	}
-
 }

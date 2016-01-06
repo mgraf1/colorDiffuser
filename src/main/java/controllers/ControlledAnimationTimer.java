@@ -3,8 +3,8 @@ package controllers;
 import java.util.LinkedList;
 
 import javafx.animation.AnimationTimer;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
 * Extension of JavaFX's AnimationTimer. It allows the user to determine the
@@ -17,9 +17,8 @@ import javafx.beans.property.StringProperty;
 public class ControlledAnimationTimer extends AnimationTimer{
     
     // Instance variables
-    private int currStep;
-    private int maxSteps;
-    private StringProperty stringProp;
+    private IntegerProperty currStepProperty;
+    private IntegerProperty maxStepsProperty;
     private Runnable function;
     private boolean running;
     private LinkedList<Runnable> onFinishTasks;
@@ -30,12 +29,10 @@ public class ControlledAnimationTimer extends AnimationTimer{
     * @param max The max number of steps to run the timer for.
     */
     public ControlledAnimationTimer(int max) {
-        currStep = 0;
-        maxSteps = max;
-        stringProp = new SimpleStringProperty();
+        currStepProperty = new SimpleIntegerProperty();
+        maxStepsProperty = new SimpleIntegerProperty(max);
         onFinishTasks = new LinkedList<>();
         onStartTasks = new LinkedList<>();
-        adjustProperty();
     }
     
     /**
@@ -63,8 +60,8 @@ public class ControlledAnimationTimer extends AnimationTimer{
     * @param max The desired number of steps.
     */
     public void setMaxSteps(int max) {
-        maxSteps = max;
-        adjustProperty();
+        maxStepsProperty.setValue(max);
+        reset();
     }
     
     /**
@@ -73,14 +70,6 @@ public class ControlledAnimationTimer extends AnimationTimer{
     */
     public void setFunction(Runnable r) {
         function = r;
-    }
-    
-    /**
-    * Getter for StringProperty that displays the current step.
-    * @return Reference to StringProperty.
-    */
-    public StringProperty getProperty() {
-        return stringProp;
     }
     
     /**
@@ -96,15 +85,32 @@ public class ControlledAnimationTimer extends AnimationTimer{
      * @return Maximum number of steps.
      */
     public int getMaxSteps() {
-        return maxSteps;
+        return maxStepsProperty.intValue();
+    }
+    
+    /**
+     * Getter for current step.
+     * @return Reference to current step IntegerProperty.
+     */
+    public IntegerProperty CurrStepProperty() {
+        return currStepProperty;
+    }
+    
+    /**
+     * Getter for maximum number of steps.
+     * @return Reference to maximum steps IntegerProperty.
+     */
+    public IntegerProperty MaxStepsProperty() {
+        return maxStepsProperty;
     }
     
     @Override
     public void handle(long now) {
         if (function != null) {
-            if (currStep < maxSteps) {
+            if (currStepProperty.intValue() 
+                    < maxStepsProperty.intValue()) {
                 function.run();
-                increment();
+                currStepProperty.set(currStepProperty.intValue() + 1);;
             } else {
                 stop();
             }
@@ -134,20 +140,8 @@ public class ControlledAnimationTimer extends AnimationTimer{
         }
     }
     
-    // Advance the counter and StringProperty.
-    private void increment() {
-        currStep++;
-        adjustProperty();
-    }
-    
     // Reset the counter and StringProperty.
     private void reset() {
-        currStep = 0;
-        adjustProperty();
-    }
-    
-    // Update the StringProperty.
-    private void adjustProperty() {
-        stringProp.set("Counter: " + currStep + "/" + maxSteps);
+        currStepProperty.set(0);
     }
 }

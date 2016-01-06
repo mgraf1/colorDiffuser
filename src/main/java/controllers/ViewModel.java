@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import controllers.mouse.MouseBehavior;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,13 +13,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import model.DataArray;
 
 /**
@@ -49,13 +52,15 @@ public class ViewModel implements Initializable {
     @FXML
     private Button hideButton;
     @FXML
-    private TextField stepsTextField;
-    @FXML
     private ImageView imageView;
     @FXML
     private ColorPicker colorPicker;
     @FXML
     private Slider slider;
+    @FXML
+    private ProgressBar progressBar;
+    @FXML 
+    private Text barText;
     
     private ImageHandler imageHandler;
     private DataArray dataArray;
@@ -67,23 +72,12 @@ public class ViewModel implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         
         // Make sure reference injection happens correctly.
-        assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'View.fxml'.";
-        assert exitButton != null : "fx:id=\"exitButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert runButton != null : "fx:id=\"runButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert addEmitterButton != null : "fx:id=\"addEmitterButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert addColorButton != null : "fx:id=\"addColorButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert clearButton != null : "fx:id=\"clearButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert numStepsButton != null : "fx:id=\"numStepsButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert hideButton != null : "fx:id=\"hideButton\" was not injected: check your FXML file 'View.fxml'.";
-        assert stepsTextField != null : "fx:id=\"stepsTextField\" was not injected: check your FXML file 'View.fxml'.";
-        assert imageView != null : "fx:id=\"imageView\" was not injected: check your FXML file 'View.fxml'.";
-        assert colorPicker != null : "fx:id=\"colorPicker\" was not injected: check your FXML file 'View.fxml'.";
-        assert slider != null : "fx:id=\"slider\" was not injected: check your FXML file 'View.fxml'.";
+        checkInjectedValues();
         
         // Create the model.
         dataArray = new DataArray((int)imageView.getFitWidth(),
-        (int)imageView.getFitHeight(),
-        DIFFUSE_PERCENT);
+                (int)imageView.getFitHeight(),
+                DIFFUSE_PERCENT);
         
         // Create ImageHandler.
         imageHandler = new ImageHandler(imageView, dataArray, anchorPane, slider);
@@ -105,8 +99,13 @@ public class ViewModel implements Initializable {
         counter.addOnStartTask(() -> runButton.setText("Stop"));
         counter.addOnFinishTask(() -> runButton.setText("Run"));
         
-        // Bind steps text field to counter.
-        stepsTextField.textProperty().bindBidirectional(counter.getProperty());
+        // Bind progress bar with text to the counter.
+        IntegerProperty cs = counter.CurrStepProperty();
+        IntegerProperty ms = counter.MaxStepsProperty();
+        barText.textProperty().bind(Bindings.concat(cs, "/", ms));
+        barText.textProperty().addListener(e -> 
+            progressBar.setProgress(cs.doubleValue() / ms.doubleValue())
+        );
     }
     
     // Kills the program.
@@ -186,6 +185,23 @@ public class ViewModel implements Initializable {
         
         // Register mouse handlers that come with new state.
         swapMouseBehavior(mouseBehavior);
+    }
+    
+    // Check that FXML values are injected correctly.
+    private void checkInjectedValues() {
+        assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'View.fxml'.";
+        assert exitButton != null : "fx:id=\"exitButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert runButton != null : "fx:id=\"runButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert addEmitterButton != null : "fx:id=\"addEmitterButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert addColorButton != null : "fx:id=\"addColorButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert clearButton != null : "fx:id=\"clearButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert numStepsButton != null : "fx:id=\"numStepsButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert hideButton != null : "fx:id=\"hideButton\" was not injected: check your FXML file 'View.fxml'.";
+        assert barText != null : "fx:id=\"barText\" was not injected: check your FXML file 'View.fxml'.";
+        assert imageView != null : "fx:id=\"imageView\" was not injected: check your FXML file 'View.fxml'.";
+        assert colorPicker != null : "fx:id=\"colorPicker\" was not injected: check your FXML file 'View.fxml'.";
+        assert slider != null : "fx:id=\"slider\" was not injected: check your FXML file 'View.fxml'.";
+        assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'View.fxml'.";
     }
     
     // Remove old mouse handlers and replace them with new ones.
